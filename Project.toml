@@ -1,6 +1,6 @@
 name = "TOGZMQServer"
 uuid = "8938e4ce-5c5c-42ac-aa38-58f6e5ea3caa"
-version = "1.0.0"
+version = "2.0.0"
 authors = ["1m1 <imi@1m1.io>"]
 
 [deps]

@@ -8,7 +8,7 @@ using TOG: t
 import TOG.∃!
 
 function awaken(; router, pub, tog, ω)
-    # @show "TOGZMQServer.start(socketlocation)", socketlocation
+    @show "TOGZMQServer.awaken", router, pub, tog
     push!(:time, time(ω))
     push!(:awaken, awakengod(router, pub, tog))
     push!(:create, create(ω))
