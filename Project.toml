@@ -1,9 +1,10 @@
 name = "TOGZMQServer"
 uuid = "8938e4ce-5c5c-42ac-aa38-58f6e5ea3caa"
-version = "4.0.0"
+version = "5.0.0"
 authors = ["1m1 <imi@1m1.io>"]
 
 [deps]
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 TOGOctahedron = "63dbb591-2283-4878-9590-a413da56821f"
 TOG = "894673ee-413c-4601-8a2e-415a0e884e29"
 TOGInstall = "737b443f-5b68-4fde-ac0f-501ab7f5c9a4"

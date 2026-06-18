@@ -1,9 +1,9 @@
 module TOGZMQServer
 
+using StaticArrays
 using TOGZMQAPIServer
 using TOGZMQAPIServer: push!
-using TOGOctahedron: Octahedron
-# using TOGInstall
+using TOGOctahedron: Octahedron, pyramid, box_aabb
 using TOG: t
 import TOG.∃!
 
@@ -13,22 +13,26 @@ function awaken(; router, pub, tog, ω)
     # push!(:awaken, awakengod(router, pub, tog))
     push!(:create, create(ω))
     push!(:observe, observe(ω))
+    push!(:help, help)
+    push!(:api, help)
     TOGZMQAPIServer.awaken(tog)
 end
 
 # awakengod(router, pub, tog) = name -> TOGInstall.awakengod(name=name, router=router, pub=pub, tog=tog)
 
-time(ω) = _ -> t(ω)
+help(x...) = "HELP"
 
-create(ω) = x -> create(x..., ω)
+time(ω) = (x...) -> t(ω)
+
+create(ω) = (x...) -> create(x..., ω)
 function create(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω)
-    length(μ == 2) && return ∃!2d(o, μ, ρ, ϕ, ∂₀, ∂₁, n, ω)
-    length(μ == 3) && return ∃!3d(o, μ, ρ, ϕ, ∂₀, ∂₁, n, ω)
-    length(μ == 4) && return ∃!4d(o, μ, ρ, ϕ, ∂₀, ∂₁, n, ω)
+    length(μ) == 2 && return ∃!2d(o, μ, ρ, ϕ, ∂₀, ∂₁, n, ω)
+    length(μ) == 3 && return ∃!3d(o, μ, ρ, ϕ, ∂₀, ∂₁, n, ω)
+    length(μ) == 4 && return ∃!4d(o, μ, ρ, ϕ, ∂₀, ∂₁, n, ω)
     ∃!(o, ϕ, ∂₀, ∂₁, n, ω)
 end
 
-observe(ω) = x -> observe(x..., ω)
+observe(ω) = (x...) -> observe(x..., ω)
 observe(o::Octahedron, ω) = ∃̇(o, ω)
 
 function ∃!(o::Octahedron, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
@@ -40,18 +44,18 @@ function ∃!2d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     μ̃ = z .+ 2 * (μ[1] * dx .+ μ[2] * dy)
     dx̃ = 2 * dx * ρ[1]
     dỹ = 2 * dy * ρ[2]
-    dz̃ = typemin(T) / o.norm(zo) * zo
+    dz̃ = typemin(eltype(μ)) / o.norm(zo) * zo
     μ̃, ρ̃ = box_aabb(μ̃, SA[dx̃, dỹ, dz̃])
     ∃!(∃(o.d, μ̃, ρ̃, ∂₀, ∂₁, ϕ), n, ω)
 end
 function ∃!3d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     _, z, dx, dy, _, _, za, _, _, _, _ = pyramid(o)
-    t̃ = one(T) - μ[3]
+    t̃ = one(eltype(μ)) - μ[3]
     μ̃ = z .+ μ[3] * za .+ 2 * (μ[1] * t̃ * dx .+ μ[2] * t̃ * dy)
     ρ̃ = zeros(μ̃)
-    ρ̃[2] = 2 * o.norm(dx) * ρ[1] * t̃ * min(μ[1], one(T) - μ[1])
-    ρ̃[3] = 2 * o.norm(dy) * ρ[2] * t̃ * min(μ[2], one(T) - μ[2])
-    ρ̃[4] = o.norm(za) * ρ[3] * min(μ[3], (one(T) - max(μ[1], μ[2])) * t̃)
+    ρ̃[2] = 2 * o.norm(dx) * ρ[1] * t̃ * min(μ[1], one(eltype(μ)) - μ[1])
+    ρ̃[3] = 2 * o.norm(dy) * ρ[2] * t̃ * min(μ[2], one(eltype(μ)) - μ[2])
+    ρ̃[4] = o.norm(za) * ρ[3] * min(μ[3], (one(eltype(μ)) - max(μ[1], μ[2])) * t̃)
     ∃!(∃(o.d, μ̃, ρ̃, ∂₀, ∂₁, ϕ), n, ω)
 end
 function ∃!4d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
