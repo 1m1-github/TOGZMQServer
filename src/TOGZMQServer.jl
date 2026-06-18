@@ -4,12 +4,14 @@ using StaticArrays
 using TOGZMQAPIServer
 using TOGZMQAPIServer: push!
 using TOGOctahedron: Octahedron, pyramid, box_aabb
-using TOG: t
+using TOG: t, ∃
 import TOG.∃!
 
 function awaken(; router, pub, tog, ω)
     @show "TOGZMQServer.awaken", router, pub, tog
     push!(:time, time(ω))
+    push!(:T, type(ω))
+    push!(:type, type(ω))
     # push!(:awaken, awakengod(router, pub, tog))
     push!(:create, create(ω))
     push!(:observe, observe(ω))
@@ -21,7 +23,7 @@ end
 # awakengod(router, pub, tog) = name -> TOGInstall.awakengod(name=name, router=router, pub=pub, tog=tog)
 
 help(x...) = "HELP"
-
+type(ω) = (x...) -> first(typeof(ω).parameters)
 time(ω) = (x...) -> t(ω)
 
 create(ω) = (x...) -> create(x..., ω)
@@ -36,20 +38,26 @@ observe(ω) = (x...) -> observe(x..., ω)
 observe(o::Octahedron, ω) = ∃̇(o, ω)
 
 function ∃!(o::Octahedron, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
-    _, _, _, μ̃, ρ̃, _, _, _, _, _, _ = pyramid(o)
+    _, _, _, _, _, _, _, _, _, μ̃, ρ̃ = pyramid(o)
+    # N, z, dx, dy, c, a, za, ca, zo, μ, ρ
     ∃!(∃(o.d, μ̃, ρ̃, ∂₀, ∂₁, ϕ), n, ω)
 end
 function ∃!2d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     _, z, dx, dy, _, _, _, _, zo, _, _ = pyramid(o)
+    # N, z, dx, dy, c, a, za, ca, zo, μ, ρ
+    @show "∃!2d", typeof(z), typeof(dx), typeof(zo)
     μ̃ = z .+ 2 * (μ[1] * dx .+ μ[2] * dy)
     dx̃ = 2 * dx * ρ[1]
     dỹ = 2 * dy * ρ[2]
     dz̃ = typemin(eltype(μ)) / o.norm(zo) * zo
+    @show "∃!2d",  typeof(o.d), typeof(μ), typeof(μ̃)
     μ̃, ρ̃ = box_aabb(μ̃, SA[dx̃, dỹ, dz̃])
+    @show "∃!2d",  typeof(o.d), typeof(μ), typeof(μ̃)
     ∃!(∃(o.d, μ̃, ρ̃, ∂₀, ∂₁, ϕ), n, ω)
 end
 function ∃!3d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     _, z, dx, dy, _, _, za, _, _, _, _ = pyramid(o)
+    # N, z, dx, dy, c, a, za, ca, zo, μ, ρ
     t̃ = one(eltype(μ)) - μ[3]
     μ̃ = z .+ μ[3] * za .+ 2 * (μ[1] * t̃ * dx .+ μ[2] * t̃ * dy)
     ρ̃ = zeros(μ̃)
@@ -59,7 +67,9 @@ function ∃!3d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     ∃!(∃(o.d, μ̃, ρ̃, ∂₀, ∂₁, ϕ), n, ω)
 end
 function ∃!4d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
-    # todo
+    _, _, _, _, _, _, _, _, _, μ̃, ρ̃ = pyramid(o)
+    # N, z, dx, dy, c, a, za, ca, zo, μ, ρ
+    ∃!(∃(o.d, μ̃, ρ̃, ∂₀, ∂₁, ϕ), n, ω)
 end
 
 
