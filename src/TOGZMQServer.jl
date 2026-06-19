@@ -3,7 +3,7 @@ module TOGZMQServer
 using StaticArrays
 using TOGZMQAPIServer
 using TOGZMQAPIServer: push!
-using TOGOctahedron: Octahedron, pyramid, box_aabb
+using TOGOctahedron: Octahedron, pyramid, box_aabb, ∃̇
 using TOG: t, ∃
 import TOG.∃!
 
