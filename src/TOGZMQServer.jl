@@ -35,7 +35,8 @@ function create(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω)
 end
 
 observe(ω) = (x...) -> observe(x..., ω)
-observe(o::Octahedron, ω) = ∃̇(o, ω)
+# observe(o::Octahedron, ω) = ∃̇(o, ω)
+observe(o::Octahedron, ω) = Base.invokelatest(∃̇, o, ω)
 
 function ∃!(o::Octahedron, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     _, _, _, _, _, _, _, _, _, μ̃, ρ̃ = pyramid(o)
@@ -45,7 +46,6 @@ end
 function ∃!2d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     _, z, dx, dy, _, _, _, _, zo, _, _ = pyramid(o)
     # N, z, dx, dy, c, a, za, ca, zo, μ, ρ
-    @show "∃!2d", typeof(z), typeof(dx), typeof(zo)
     @show "∃!2d", z, dx, zo
     μ̃ = z .+ 2 * (μ[1] * dx .+ μ[2] * dy)
     dx̃ = 2 * dx * ρ[1]
@@ -54,10 +54,11 @@ function ∃!2d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     @show "∃!2d", eps(eltype(μ)), o.norm(zo)
     @show "∃!2d", μ̃, dx̃, dỹ, dz̃
     # @show "∃!2d",  typeof(o.d), typeof(μ), typeof(μ̃)
-    μ̃, ρ̃ = box_aabb(μ̃, SA[dx̃, dỹ, dz̃])
+    # μ̃, ρ̃ = box_aabb(μ̃, SA[dx̃, dỹ, dz̃])
+    μ̃, ρ̃ = box_aabb(μ̃, [dx̃, dỹ, dz̃])
     @show "∃!2d", μ̃, ρ̃
     # @show "∃!2d",  typeof(o.d), typeof(μ), typeof(μ̃)
-    ∃!(∃(o.d, μ̃, ρ̃, [true, true, ∂₀...], [true, true, ∂₁...], ϕ), n, ω)
+    ∃!(∃(o.d, μ̃, ρ̃, [fill(true, length(o.d) - 2)..., ∂₀...], [fill(true, length(o.d) - 2)..., ∂₁...], ϕ), n, ω)
 end
 function ∃!3d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     _, z, dx, dy, _, _, za, _, _, _, _ = pyramid(o)
