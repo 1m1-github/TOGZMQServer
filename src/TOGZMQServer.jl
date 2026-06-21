@@ -46,14 +46,18 @@ function ∃!2d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     _, z, dx, dy, _, _, _, _, zo, _, _ = pyramid(o)
     # N, z, dx, dy, c, a, za, ca, zo, μ, ρ
     @show "∃!2d", typeof(z), typeof(dx), typeof(zo)
+    @show "∃!2d", z, dx, zo
     μ̃ = z .+ 2 * (μ[1] * dx .+ μ[2] * dy)
     dx̃ = 2 * dx * ρ[1]
     dỹ = 2 * dy * ρ[2]
-    dz̃ = typemin(eltype(μ)) / o.norm(zo) * zo
-    @show "∃!2d",  typeof(o.d), typeof(μ), typeof(μ̃)
+    dz̃ = eps(eltype(μ)) / o.norm(zo) * zo
+    @show "∃!2d", eps(eltype(μ)), o.norm(zo)
+    @show "∃!2d", μ̃, dx̃, dỹ, dz̃
+    # @show "∃!2d",  typeof(o.d), typeof(μ), typeof(μ̃)
     μ̃, ρ̃ = box_aabb(μ̃, SA[dx̃, dỹ, dz̃])
-    @show "∃!2d",  typeof(o.d), typeof(μ), typeof(μ̃)
-    ∃!(∃(o.d, μ̃, ρ̃, ∂₀, ∂₁, ϕ), n, ω)
+    @show "∃!2d", μ̃, ρ̃
+    # @show "∃!2d",  typeof(o.d), typeof(μ), typeof(μ̃)
+    ∃!(∃(o.d, μ̃, ρ̃, [true, true, ∂₀...], [true, true, ∂₁...], ϕ), n, ω)
 end
 function ∃!3d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     _, z, dx, dy, _, _, za, _, _, _, _ = pyramid(o)
@@ -64,7 +68,7 @@ function ∃!3d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     ρ̃[2] = 2 * o.norm(dx) * ρ[1] * t̃ * min(μ[1], one(eltype(μ)) - μ[1])
     ρ̃[3] = 2 * o.norm(dy) * ρ[2] * t̃ * min(μ[2], one(eltype(μ)) - μ[2])
     ρ̃[4] = o.norm(za) * ρ[3] * min(μ[3], (one(eltype(μ)) - max(μ[1], μ[2])) * t̃)
-    ∃!(∃(o.d, μ̃, ρ̃, ∂₀, ∂₁, ϕ), n, ω)
+    ∃!(∃(o.d, μ̃, ρ̃, [true, ∂₀...], [true, ∂₁...], ϕ), n, ω)
 end
 function ∃!4d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     _, _, _, _, _, _, _, _, _, μ̃, ρ̃ = pyramid(o)
