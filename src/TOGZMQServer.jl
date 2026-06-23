@@ -7,6 +7,7 @@ using TOGOctahedron: Octahedron, pyramid, box_aabb, ∃̇
 using TOG: t, ∃
 import TOG.∃!
 
+sleep = TOGZMQAPIServer.sleep
 function awaken(; router, pub, tog, ω)
     @show "TOGZMQServer.awaken", router, pub, tog
     push!(:time, time(ω))
@@ -46,13 +47,13 @@ end
 function ∃!2d(o::Octahedron, μ, ρ, ϕ, ∂₀, ∂₁, n, ω=o.Ω)
     _, z, dx, dy, _, _, _, _, zo, _, _ = pyramid(o)
     # N, z, dx, dy, c, a, za, ca, zo, μ, ρ
-    @show "∃!2d", z, dx, zo
+    # @show "∃!2d", z, dx, zo
     μ̃ = z .+ 2 * (μ[1] * dx .+ μ[2] * dy)
     dx̃ = 2 * dx * ρ[1]
     dỹ = 2 * dy * ρ[2]
     dz̃ = eps(eltype(μ)) / o.norm(zo) * zo
-    @show "∃!2d", eps(eltype(μ)), o.norm(zo)
-    @show "∃!2d", μ̃, dx̃, dỹ, dz̃
+    # @show "∃!2d", eps(eltype(μ)), o.norm(zo)
+    # @show "∃!2d", μ̃, dx̃, dỹ, dz̃
     # @show "∃!2d",  typeof(o.d), typeof(μ), typeof(μ̃)
     # μ̃, ρ̃ = box_aabb(μ̃, SA[dx̃, dỹ, dz̃])
     μ̃, ρ̃ = box_aabb(μ̃, [dx̃, dỹ, dz̃])
